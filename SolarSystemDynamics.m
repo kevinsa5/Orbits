@@ -170,9 +170,8 @@ for t=start:70000
                 if i == j
                     continue
                 end
-                force = forceOn(bodies(i),bodies(j));
-                a = force / bodies(i).Mass;
-                bodies(i).vel = bodies(i).vel + a*deltaT;
+                accel = forceOn(bodies(i),bodies(j));
+                bodies(i).vel = bodies(i).vel + accel*deltaT;
             end
         end
         % now, move all the bodies
@@ -188,55 +187,90 @@ for t=start:70000
             bodies(i).yHist = [bodies(i).yHist bodies(i).pos(2)];
         end
     elseif strcmp(method,'Runge Kutta 4')
-        for i=1:length(bodies)
-            for j=1:length(bodies)
-                if i == j
-                    continue
+        % see http://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge.E2.80.93Kutta_method
+        % This implementation is described in http://spiff.rit.edu/richmond/nbody/OrbitRungeKutta4.pdf
+
+        %first, calculate k1 for all particles, then k2 for all particles,
+        %etc
+        order = 4;
+        kr = zeros(2,order,length(bodies));
+        kv = zeros(2,order,length(bodies));
+        %set up kr1 and kv1 for all bodies:
+        for i = 1:length(bodies)
+            kr(:,1,i) = bodies(i).vel;
+            accel = 0;
+            for j = 1:length(bodies)
+                if i ~= j 
+                    accel = accel + forceOn(bodies(i),bodies(j));
                 end
-                % see http://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge.E2.80.93Kutta_method
-                % This implementation is described in http://spiff.rit.edu/richmond/nbody/OrbitRungeKutta4.pdf
-                kv = [[0;0] [0;0] [0;0] [0;0]];
-                kr = [[0;0] [0;0] [0;0] [0;0]];
-                
-                
-                kr(:,1) = bodies(i).vel;
-                kv(:,1) = forceOn(bodies(i),bodies(j)) / bodies(i).Mass;
-                kr(:,2) = bodies(i).vel .* kv(1) * deltaT/2;
-                kv(:,2) = forceOn(bodies(i).rkCopy(kr(1)*deltaT/2),bodies(j)) / bodies(i).Mass;
-                kr(:,3) = bodies(i).vel .* kv(2) * deltaT/2;
-                kv(:,3) = forceOn(bodies(i).rkCopy(kr(2)*deltaT/2),bodies(j)) / bodies(i).Mass;
-                kr(:,4) = bodies(i).vel .* kv(3) * deltaT;
-                kv(:,4) = forceOn(bodies(i).rkCopy(kr(3)*deltaT),bodies(j)) / bodies(i).Mass;
-                
-                bodies(i).vel = bodies(i).vel + (deltaT/6) * (kv(1) + 2*kv(2) + 2*kv(3) + kv(4));
-                bodies(i).pos = bodies(i).pos + (deltaT/6) * (kr(1) + 2*kr(2) + 2*kr(3) + kr(4));
             end
+            kv(:,1,i) = accel;
+        end
+        % calculate kr2, kv2 for each
+        for i = 1:length(bodies)
+            kr(:,2,i) = bodies(i).vel + kv(:,1,i)*deltaT/2;
+            accel = 0;
+            for j = 1:length(bodies)
+                if i ~= j
+                    accel = accel + forceOn( bodies(i).rkCopy(deltaT/2 * kr(:,1,i)), ...
+                                             bodies(j).rkCopy(deltaT/2 * kr(:,1,j)));
+                end
+            end
+            kv(:,2,i) = accel;
+        end
+        % calculate kr3, kv3 for each 
+        for i = 1:length(bodies)
+            kr(:,3,i) = bodies(i).vel + kv(:,2,i)*deltaT/2;
+            accel = 0;
+            for j = 1:length(bodies)
+                if i ~= j
+                    accel = accel + forceOn( bodies(i).rkCopy(deltaT/2 * kr(:,2,i)), ...
+                                             bodies(j).rkCopy(deltaT/2 * kr(:,2,j)));
+                end
+            end
+            kv(:,3,i) = accel;
+        end
+        % calculate kr4, kv4 for each 
+        for i = 1:length(bodies)
+            kr(:,4,i) = bodies(i).vel + kv(:,3,i)*deltaT;
+            accel = 0;
+            for j = 1:length(bodies)
+                if i ~= j
+                    accel = accel + forceOn( bodies(i).rkCopy(deltaT * kr(:,3,i)), ...
+                                             bodies(j).rkCopy(deltaT * kr(:,3,j)));
+                end
+            end
+            kv(:,4,i) = accel;
+        end
+        for i=1:length(bodies)
+            bodies(i).vel = bodies(i).vel + (deltaT/6) * (kv(:,1,i) + 2*kv(:,2,i) + 2*kv(:,3,i) + kv(:,4,i));
+            bodies(i).pos = bodies(i).pos + (deltaT/6) * (kr(:,1,i) + 2*kr(:,2,i) + 2*kr(:,3,i) + kr(:,4,i));
         end
         for i=1:length(bodies)
             bodies(i).xHist = [bodies(i).xHist bodies(i).pos(1)];
             bodies(i).yHist = [bodies(i).yHist bodies(i).pos(2)];
         end
     elseif strcmp(method, 'Verlet')
-        a = zeros(2,length(bodies));
-        for i=1:length(bodies)
-            if size(bodies(i).xHist)==0
-                hist = bodies(i).pos - bodies(i).vel * deltaT;
-                bodies(i).xHist = hist(1);
-                bodies(i).yHist = hist(2);
-            end
-            netForce = 0;
-            for j=1:length(bodies)
-                if i == j
-                    continue
+        dX = zeros(2,length(bodies));
+        dV = zeros(2,length(bodies));
+        for i = 1:length(bodies)
+            accel = [0;0];
+            iAccel = [0;0];
+            for j = 1:length(bodies)
+                if i ~= j
+                    accel = accel + forceOn( bodies(i), bodies(j));
+                    iAccel = iAccel + forceOn( bodies(i).rkCopy(deltaT*bodies(i).vel),...
+                                               bodies(j).rkCopy(deltaT*bodies(j).vel));
                 end
-                netForce = netForce + forceOn(bodies(i),bodies(j));
             end
-            a(:,i) = netForce / bodies(i).Mass;
+            dX(:,i) = bodies(i).vel*deltaT + 0.5 * deltaT^2 * accel;
+            dV(:,i) = 0.5 * (accel + iAccel) * deltaT;
         end
+        
         for i=1:length(bodies)
-            bodies(i).pos = bodies(i).pos + bodies(i).vel * deltaT + 0.5 * a(i) * deltaT^2;
-            bodies(i).vel = bodies(i).vel + 0.5 * (a(i) + ) * deltaT;
-            %bodies(i).pos = bodies(i).pos + (bodies(i).pos - [bodies(i).xHist(end); bodies(i).yHist(end)]) + a(:,i) * deltaT * deltaT;
+            bodies(i).pos = bodies(i).pos + dX(:,i);
+            bodies(i).vel = bodies(i).vel + dV(:,i);
+
             bodies(i).xHist = [bodies(i).xHist bodies(i).pos(1)];
             bodies(i).yHist = [bodies(i).yHist bodies(i).pos(2)];
         end
@@ -254,22 +288,22 @@ if ishandle(hObject)
     set(hObject, 'UserData', '1');
 end
 
-
-function force = forceOn(body1, body2)
+function accel = forceOn(body1, body2)
     % Big G in units of Au^3 / (earth mass * year^2)
     %G = 3.964e29;
     G = 0.00011835;
-    r = sqrt(sum((body1.pos-body2.pos).^2));
-    f = -G*body1.Mass*body2.Mass/r^2;
-    theta = atan((body1.pos(2)-body2.pos(2))/(body1.pos(1)-body2.pos(1)));
-    %atan has a funny range, this turns it into 0-2pi
-    if body1.pos(1) < body2.pos(1)
-        theta = theta + pi;
-    elseif body1.pos(2) < body2.pos(2)
-        theta = theta + 2*pi;
-    end
-    force = [ f*cos(theta) ; f*sin(theta) ];
-    
+    r = norm(body1.pos - body2.pos);
+    % next line has (x1-x2)/mag(x1-x2) to represent rhat
+    force = -G*body1.Mass*body2.Mass/ r^3 * (body1.pos - body2.pos);
+    accel = force / body1.Mass;
+%     theta = atan((body2.pos(2)-body1.pos(2))/(body2.pos(1)-body1.pos(1)));
+%     %atan has a funny range, this turns it into 0-2pi
+%     if body1.pos(1) < body2.pos(1)
+%         theta = theta + pi;
+%     elseif body1.pos(2) < body2.pos(2)
+%         theta = theta + 2*pi;
+%     end
+%    force = [ f*cos(theta) ; f*sin(theta) ] / body1.Mass;
     
 function initial_angle_Callback(hObject, ~, handles)
 global spaceship;
@@ -281,7 +315,7 @@ end
 tempr = 0:0.01:get(handles.initial_velocity, 'Value');
 drawBodies();
 hold on;
-plot(spaceship.x+tempr*cos(value),spaceship.y+tempr*sin(value));
+plot(spaceship.pos(1)+tempr*cos(value),spaceship.pos(2)+tempr*sin(value));
 %axis(defaultAxes);
 hold off;
 
@@ -303,9 +337,20 @@ if strcmp(configuration, 'Solar System')
     saturn = Body331('Saturn', 9.529, 2.02, 95.3, 9.26/2, 'y');
     uranus = Body331('Uranus', 19.19, 1.43, 14.6, 4.01/2, 'g');
     neptune = Body331('Neptune', 30.06, 1.14, 17.23, 3.88 / 2, 'b');
-   
+    
     %earthMoon = Body('Earth''s Moon', 0, 50.1, -20, 0, 0.5, 4000, 'k');
+    %bodies = [sun earth];
     bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune];    
+    
+    % make the system's net momentum zero:
+    comVel = [0;0];
+    for b = bodies
+        if ~ strcmp(b.Name, 'Sun')
+            comVel = comVel + b.vel * b.Mass;
+        end
+    end
+    sun.vel = -1 * comVel / sun.Mass;
+
 end
 
 function txtTimeStep_Callback(hObject, ~, handles)

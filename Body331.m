@@ -38,15 +38,6 @@ classdef Body331 < handle
 %                             obj.Radius, ...
 %                             obj.Color ...
 %                             );
-            % Instantiate new object of the same class.
-            
-            %newBody = feval(class(obj));
- 
-            % Copy all non-hidden properties.
-            %p = properties(obj);
-            %for i = 1:length(p)
-            %    new.(p{i}) = obj.(p{i});
-            %end
             newBody = Body331('Temporary', 0,0,obj.Mass,obj.Radius,obj.Color);
             newBody.vel = obj.vel;
             newBody.pos = obj.pos + dx;
