@@ -22,7 +22,7 @@ function varargout = SolarSystemDynamics(varargin)
 
     % Edit the above text to modify the response to help SolarSystemDynamics
 
-    % Last Modified by GUIDE v2.5 17-Feb-2014 08:45:18
+    % Last Modified by GUIDE v2.5 26-Feb-2014 16:37:44
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -80,43 +80,41 @@ function initial_velocity_Callback(hObject, ~, handles) %#ok<DEFNU>
     initial_angle_Callback(handles.initial_angle, 0, handles);
 end
 
-function drawBodies(varargin)
+function drawBodies(handles)
     global bodies
     global spaceship;
-    if nargin > 0
-        labeling = varargin{1};
-    else
-        labeling = false;
-    end
+    labeling = get(handles.chkLabeling, 'Value');
     lims = axis;
     cla;
     plot(spaceship.xHist,spaceship.yHist);
     hold on;
     for i=1:length(bodies)
-        scatter(bodies(i).pos(1), bodies(i).pos(2),bodies(i).Mass^(1/9)*100,strcat(bodies(i).Color,'*'));
+        % using rectangle allows doing circle diameter in AU instead of px
+        rectangle('Position',[transpose(bodies(i).pos - bodies(i).Radius) 2*bodies(i).Radius 2*bodies(i).Radius],'Curvature',1);
         plot(bodies(i).xHist, bodies(i).yHist, bodies(i).Color);
-        if labeling
-            yax = ylim;
-            xax = xlim;
-            dx = 0.05*(xax(2)-xax(1));
-            dy = 0.05*(yax(2)-yax(1));
+    end
+    axis(lims);
+    if labeling
+        yax = ylim;
+        xax = xlim;
+        dx = 0.02*(xax(2)-xax(1));
+        dy = 0.02*(yax(2)-yax(1));
+        for i=1:length(bodies)
             %fprintf(1,'dx: %f; dy: %f \n', dx, dy);
             text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
         end
     end
-    axis(lims);
     hold off;
 end
 
 function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
     global bodies;
     global spaceship;
-    % hObject    handle to btnGo (see GCBO)
-    % ~  reserved - to be defined in a future version of MATLAB
-    % handles    structure with handles and user data (see GUIDATA)
+
     if strcmp(get(hObject, 'String'), 'Pause')
         disp('pause was hit');
         set(hObject, 'String', 'Resume');
+        set(handles.btnReset, 'Enable','on');
         return;
     end
 
@@ -128,7 +126,14 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
         spaceship.vel = [v0*cos(t0); v0*sin(t0)];
     end
     set(hObject, 'String', 'Pause');
-
+    set(handles.initial_velocity,'Enable','off');
+    set(handles.initial_angle, 'Enable', 'off');
+    set(handles.menuConfiguration, 'Enable', 'off');
+    set(handles.txtTimeStep, 'Enable','off');
+    set(handles.txtFrameSkip, 'Enable','off');
+    set(handles.btnReset, 'Enable','off');
+    set(handles.menuMethod, 'Enable', 'off');
+    
     deltaT = str2double(get(handles.txtTimeStep, 'String'));
     frameSkip = str2double(get(handles.txtFrameSkip, 'String'));
 
@@ -142,10 +147,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
         if ~ ishandle(handles.MainFigure)
             break;
         end
+
         if strcmp(get(hObject, 'String'), 'Resume')
             set(hObject, 'UserData', num2str(t));
             %drawBodies(true);
-            drawBodies();
+            drawBodies(handles);
             %axis(defaultAxes);
             return;
         end
@@ -270,7 +276,7 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
 
         %axis(defaultAxes);
         if mod(t,frameSkip) == 0 
-            drawBodies();
+            drawBodies(handles);
             drawnow;
         end
 
@@ -299,45 +305,46 @@ function initial_angle_Callback(hObject, ~, handles)
         return;
     end
     tempr = 0:0.01:get(handles.initial_velocity, 'Value');
-    drawBodies();
+    drawBodies(handles);
     hold on;
     plot(spaceship.pos(1)+tempr*cos(value),spaceship.pos(2)+tempr*sin(value));
     %axis(defaultAxes);
     hold off;
 end
 
-function bodies = DefineBodies()
+function bodies = DefineBodies(configuration)
     global spaceship;
     global sun;
+    % 10m = 6.685e-11 AU
+    spaceship = Body331('Ship',4,0,0.001,6.685e-11,'k');
+    sun = Body331('Sun', 0, 0, 333000, 0.004649, 'y');
+    mercury = Body331('Mercury', 0.387,10.1,0.055,1.6308e-5,'r');
+    venus = Body331('Venus', 0.723, 7.378, 0.8150, 4.0454e-5, 'g');
+    earth = Body331('Earth', 1, 6.282, 1, 4.2564e-5, 'b');
+    mars = Body331('Mars', 1.524, 5.076, 0.107, 2.263e-5,'r');
+    jupiter = Body331('Jupiter', 5.203, 2.762, 317.8, 4.6239e-4, 'y');
+    saturn = Body331('Saturn', 9.529, 2.02, 95.3, 3.8313e-4, 'y');
+    uranus = Body331('Uranus', 19.19, 1.43, 14.6, 1.6889e-4, 'g');
+    neptune = Body331('Neptune', 30.06, 1.14, 17.23, 1.6412e-4, 'b');
 
-    configuration = 'Solar System';
-
-    if strcmp(configuration, 'Solar System')
-        spaceship = Body331('Ship',50,0,0.001,0.1,'k');
-        %  Body(   Name,  orbitRadius, orbitSpeed ,Mass,  Radius, Color)
-        sun = Body331('Sun', 0, 0, 333000, 109, 'y');
-        mercury = Body331('Mercury', 0.387,10.1,0.055,0.382 / 2,'r');
-        venus = Body331('Venus', 0.723, 7.378, 0.8150, 0.949 / 2, 'g');
-        earth = Body331('Earth', 1, 6.282, 1, 1, 'b');
-        mars = Body331('Mars', 1.524, 5.076, 0.107, 0.532 / 2,'r');
-        jupiter = Body331('Jupiter', 5.203, 2.762, 317.8, 11.19/2, 'y');
-        saturn = Body331('Saturn', 9.529, 2.02, 95.3, 9.26/2, 'y');
-        uranus = Body331('Uranus', 19.19, 1.43, 14.6, 4.01/2, 'g');
-        neptune = Body331('Neptune', 30.06, 1.14, 17.23, 3.88 / 2, 'b');
-
-        %earthMoon = Body('Earth''s Moon', 0, 50.1, -20, 0, 0.5, 4000, 'k');
-        %bodies = [sun earth];
+    bodies = [];
+    
+    if strcmp(configuration, 'Full Solar System')
         bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune];    
-
-        % make the system's net momentum zero:
-        comVel = [0;0];
-        for b = bodies
-            if ~ strcmp(b.Name, 'Sun')
-                comVel = comVel + b.vel * b.Mass;
-            end
-        end
-        sun.vel = -1 * comVel / sun.Mass;
+    elseif strcmp(configuration, 'Sun, Planets only')
+        bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune];    
+    elseif strcmp(configuration, 'Sun, Earth, Moon')
+        bodies = [spaceship sun earth];
     end
+    
+    % make the system's net momentum zero:
+    comVel = [0;0];
+    for b = bodies
+        if ~ strcmp(b.Name, 'Sun')
+            comVel = comVel + b.vel * b.Mass;
+        end
+    end
+    sun.vel = -1 * comVel / sun.Mass;
 end
 
 function txtTimeStep_Callback(hObject, ~, ~) %#ok<DEFNU>
@@ -380,9 +387,19 @@ function reset(handles)
     set(handles.txt_velocity,'String',get(handles.initial_velocity,'Value'));
     set(handles.txt_angle,'String',180/pi*get(handles.initial_angle,'Value'));
     set(handles.FrameCount,'String',0);
-
-    bodies = DefineBodies();
-    drawBodies();
+    
+    set(handles.initial_velocity,'Enable','on');
+    set(handles.initial_angle, 'Enable', 'on');
+    set(handles.menuConfiguration, 'Enable', 'on');
+    set(handles.txtTimeStep, 'Enable','on');
+    set(handles.txtFrameSkip, 'Enable','on');
+    set(handles.menuMethod, 'Enable', 'on');
+    set(handles.btnGo, 'String', 'Go');
+    
+    contents = cellstr(get(handles.menuConfiguration,'String'));
+    config = contents{get(handles.menuConfiguration,'Value')};
+    bodies = DefineBodies(config);
+    drawBodies(handles);
 end
 
 function btnReset_Callback(~, ~, handles) %#ok<DEFNU>
@@ -402,4 +419,21 @@ function menuMethod_CreateFcn(hObject, ~, ~) %#ok<DEFNU>
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
         set(hObject,'BackgroundColor','white');
     end
+end
+
+% --- Executes on button press in chkLabeling.
+function chkLabeling_Callback(~, ~, handles) %#ok<DEFNU>
+% Hint: get(hObject,'Value') returns toggle state of chkLabeling
+    if strcmp(get(handles.btnGo,'String'), 'Go') || ...
+       strcmp(get(handles.btnGo,'String'), 'Resume')
+        drawBodies(handles);
+    end
+end
+
+function menuConfiguration_Callback(hObject, ~, handles) %#ok<DEFNU>
+    global bodies;
+    contents = cellstr(get(hObject,'String'));
+    config = contents{get(hObject,'Value')};
+    bodies = DefineBodies(config);
+    drawBodies(handles);
 end
