@@ -5,17 +5,13 @@ Development is done with Matlab R2013b on x64 Linux.
 
 Numeric Integration Methods
 ---------------------------
-
 + Forward Euler 
   * local error O(h^2), global error O(h)
-
 + Runge-Kutta 4 
   * local error O(h^5), global error O(h^4)
-
 + Velocity Verlet 
   * local error in position O(h^4), velocity O(h^2)
   * global error in position O(h^2), velocity O(h^2)
-
 
 Plans
 -----
