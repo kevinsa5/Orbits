@@ -89,6 +89,7 @@ function drawBodies(handles)
     plot(spaceship.xHist,spaceship.yHist);
     hold on;
     for i=1:length(bodies)
+        if bodies(i).joined, continue; end
         % using rectangle allows doing circle diameter in AU instead of px
         rectangle('Position',[transpose(bodies(i).pos - bodies(i).Radius) 2*bodies(i).Radius 2*bodies(i).Radius],'Curvature',1);
         plot(bodies(i).xHist, bodies(i).yHist, bodies(i).Color);
@@ -100,6 +101,7 @@ function drawBodies(handles)
         dx = 0.02*(xax(2)-xax(1));
         dy = 0.02*(yax(2)-yax(1));
         for i=1:length(bodies)
+            if bodies(i).joined, continue; end
             %fprintf(1,'dx: %f; dy: %f \n', dx, dy);
             text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
         end
@@ -167,7 +169,7 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             %right now, we're duplicating all Gm/r^2 calculations
             for i=1:length(bodies)
                 for j=1:length(bodies)
-                    if i == j
+                    if i == j || bodies(i).joined || bodies(j).joined
                         continue
                     end
                     accel = forceOn(bodies(i),bodies(j));
@@ -179,6 +181,7 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             % forces on one, then move it, then use that new position for other
             % bodies' forces. move all, then accelerate all.
             for i=1:length(bodies)
+                if bodies(i).joined, continue; end
                 bodies(i).pos = bodies(i).pos + bodies(i).vel * deltaT;
                 bodies(i).xHist = [bodies(i).xHist bodies(i).pos(1)];
                 bodies(i).yHist = [bodies(i).yHist bodies(i).pos(2)];
@@ -194,9 +197,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             kv = zeros(2,order,length(bodies));
             %set up kr1 and kv1 for all bodies:
             for i = 1:length(bodies)
+                if bodies(i).joined, continue; end
                 kr(:,1,i) = bodies(i).vel;
                 accel = 0;
                 for j = 1:length(bodies)
+                    if bodies(j).joined, continue; end
                     if i ~= j 
                         accel = accel + forceOn(bodies(i),bodies(j));
                     end
@@ -205,9 +210,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             end
             % calculate kr2, kv2 for each
             for i = 1:length(bodies)
+                if bodies(i).joined, continue; end
                 kr(:,2,i) = bodies(i).vel + kv(:,1,i)*deltaT/2;
                 accel = 0;
                 for j = 1:length(bodies)
+                    if bodies(j).joined, continue; end
                     if i ~= j
                         accel = accel + forceOn( bodies(i).rkCopy(deltaT/2 * kr(:,1,i)), ...
                                                  bodies(j).rkCopy(deltaT/2 * kr(:,1,j)));
@@ -217,9 +224,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             end
             % calculate kr3, kv3 for each 
             for i = 1:length(bodies)
+                if bodies(i).joined, continue; end
                 kr(:,3,i) = bodies(i).vel + kv(:,2,i)*deltaT/2;
                 accel = 0;
                 for j = 1:length(bodies)
+                    if bodies(j).joined, continue; end
                     if i ~= j
                         accel = accel + forceOn( bodies(i).rkCopy(deltaT/2 * kr(:,2,i)), ...
                                                  bodies(j).rkCopy(deltaT/2 * kr(:,2,j)));
@@ -229,9 +238,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             end
             % calculate kr4, kv4 for each 
             for i = 1:length(bodies)
+                if bodies(i).joined, continue; end
                 kr(:,4,i) = bodies(i).vel + kv(:,3,i)*deltaT;
                 accel = 0;
                 for j = 1:length(bodies)
+                    if bodies(j).joined, continue; end
                     if i ~= j
                         accel = accel + forceOn( bodies(i).rkCopy(deltaT * kr(:,3,i)), ...
                                                  bodies(j).rkCopy(deltaT * kr(:,3,j)));
@@ -240,10 +251,12 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
                 kv(:,4,i) = accel;
             end
             for i=1:length(bodies)
+                if bodies(i).joined, continue; end
                 bodies(i).vel = bodies(i).vel + (deltaT/6) * (kv(:,1,i) + 2*kv(:,2,i) + 2*kv(:,3,i) + kv(:,4,i));
                 bodies(i).pos = bodies(i).pos + (deltaT/6) * (kr(:,1,i) + 2*kr(:,2,i) + 2*kr(:,3,i) + kr(:,4,i));
             end
             for i=1:length(bodies)
+                if bodies(i).joined, continue; end
                 bodies(i).xHist = [bodies(i).xHist bodies(i).pos(1)];
                 bodies(i).yHist = [bodies(i).yHist bodies(i).pos(2)];
             end
@@ -252,9 +265,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             dX = zeros(2,length(bodies));
             dV = zeros(2,length(bodies));
             for i = 1:length(bodies)
+                if bodies(i).joined, continue; end
                 accel = [0;0];
                 iAccel = [0;0];
                 for j = 1:length(bodies)
+                    if bodies(j).joined, continue; end
                     if i ~= j
                         accel = accel + forceOn( bodies(i), bodies(j));
                         iAccel = iAccel + forceOn( bodies(i).rkCopy(deltaT*bodies(i).vel),...
@@ -266,12 +281,38 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             end
 
             for i=1:length(bodies)
+                if bodies(i).joined, continue; end
                 bodies(i).pos = bodies(i).pos + dX(:,i);
                 bodies(i).vel = bodies(i).vel + dV(:,i);
 
                 bodies(i).xHist = [bodies(i).xHist bodies(i).pos(1)];
                 bodies(i).yHist = [bodies(i).yHist bodies(i).pos(2)];
             end
+        end
+        
+        % check for collisions
+        for i = 1:length(bodies)
+            if bodies(i).joined, continue; end
+           for j = 1:length(bodies)
+               if bodies(j).joined, continue; end
+               if i == j 
+                   continue;
+               end
+               d = norm(bodies(i).pos - bodies(j).pos);
+               if d < bodies(i).Radius + bodies(j).Radius
+                   totalMomentum = bodies(i).Mass .* bodies(i).vel + bodies(j).Mass .* bodies(j).vel;
+                   biggerIndex = i;
+                   smallerIndex = j;
+                   if bodies(j).Mass > bodies(i).Mass
+                       biggerIndex = j;
+                       smallerIndex = i;
+                   end
+                   bodies(biggerIndex).Name = strcat(bodies(biggerIndex).Name, '+', bodies(smallerIndex).Name);
+                   bodies(biggerIndex).Mass = bodies(i).Mass + bodies(j).Mass;
+                   bodies(biggerIndex).vel = totalMomentum / bodies(biggerIndex).Mass;
+                   bodies(smallerIndex).joined = true;
+               end
+           end
         end
 
         %axis(defaultAxes);
@@ -315,8 +356,9 @@ end
 function bodies = DefineBodies(configuration)
     global spaceship;
     global sun;
+    % pName,pOrbitRadius,pOrbitSpeed,pMass,pRadius,pColor
     % 10m = 6.685e-11 AU
-    spaceship = Body331('Ship',4,0,0.001,6.685e-11,'k');
+    spaceship = Body331('Ship',3.8,2,0.001,6.685e-11,'k');
     sun = Body331('Sun', 0, 0, 333000, 0.004649, 'y');
     mercury = Body331('Mercury', 0.387,10.1,0.055,1.6308e-5,'r');
     venus = Body331('Venus', 0.723, 7.378, 0.8150, 4.0454e-5, 'g');
@@ -406,24 +448,17 @@ function btnReset_Callback(~, ~, handles) %#ok<DEFNU>
     reset(handles);
 end
 
-% --- Executes on selection change in menuMethod.
 function menuMethod_Callback(~, ~, ~) %#ok<DEFNU>
-    % Hints: contents = cellstr(get(hObject,'String')) returns menuMethod contents as cell array
-    %        contents{get(hObject,'Value')} returns selected item from menuMethod
+    % maybe set a good default timestep here?
 end
 
-% --- Executes during object creation, after setting all properties.
 function menuMethod_CreateFcn(hObject, ~, ~) %#ok<DEFNU>
-    % Hint: popupmenu controls usually have a white background on Windows.
-    %       See ISPC and COMPUTER.
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
         set(hObject,'BackgroundColor','white');
     end
 end
 
-% --- Executes on button press in chkLabeling.
 function chkLabeling_Callback(~, ~, handles) %#ok<DEFNU>
-% Hint: get(hObject,'Value') returns toggle state of chkLabeling
     if strcmp(get(handles.btnGo,'String'), 'Go') || ...
        strcmp(get(handles.btnGo,'String'), 'Resume')
         drawBodies(handles);

@@ -14,6 +14,7 @@ classdef Body331 < handle
         Color
         xHist
         yHist
+        joined
     end
     methods
         function obj = Body331(pName,pOrbitRadius,pOrbitSpeed,pMass,pRadius,pColor)
@@ -28,6 +29,7 @@ classdef Body331 < handle
             obj.Color = pColor;
             obj.xHist = [];
             obj.yHist = [];
+            obj.joined = false;
         end
         %returns a body for RK method.
         function newBody = rkCopy(obj,dx)
