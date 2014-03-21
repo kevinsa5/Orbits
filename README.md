@@ -13,10 +13,17 @@ Numeric Integration Methods
   * local error in position O(h<sup>4</sup>), velocity O(h<sup>2</sup>)
   * global error in position O(h<sup>2</sup>), velocity O(h<sup>2</sup>)
 
+Cool Features
+-------------
+
++ The sun's initial momentum is initialized such that the system's initial net linear momentum is zero and its center of mass is stationary
+
++ Collisions are checked and absorptions are done based on mass with conservation of linear momentum
+
 Plans
 -----
 
-+ Include a graph of total kinetic energy and angular momentum over time to show which methods conserve which quantitites
++ Include a graph of total kinetic energy and angular momentum over time to show which methods conserve which quantities
 
 + Figure out a better way to do initial conditions for the spacecraft
 
@@ -24,6 +31,10 @@ Plans
 
 + Improve the Euler method so it uses force-symmetry rather than recalculating
 
-+ Collision/absorption checking
-
 + Include moons
+
+Screenshots
+-----------
+![screenshot](pictures/gui.png)
+
+![screenshot](pictures/orbits.png)
