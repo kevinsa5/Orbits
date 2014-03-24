@@ -22,6 +22,7 @@ Cool Features
 
 Plans
 -----
++ Write a shooting method to solve the BVP (I'm here, I want to be there) and find the initial velocity for an unpowered (and powered?) object.
 
 + Include a graph of total kinetic energy and angular momentum over time to show which methods conserve which quantities
 
