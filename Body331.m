@@ -14,7 +14,9 @@ classdef Body331 < handle
         Color
         xHist
         yHist
-        joined
+        joined %crashed into someone else
+        moonNumber %used for labeling so that names don't overlap
+        numberOfMoons
     end
     methods
         function obj = Body331(pName,pOrbitRadius,pOrbitSpeed,pMass,pRadius,pColor)
@@ -30,6 +32,17 @@ classdef Body331 < handle
             obj.xHist = [];
             obj.yHist = [];
             obj.joined = false;
+            obj.moonNumber = 0;
+            obj.numberOfMoons = 0;
+        end
+        function moon = makeMoon(obj,pName, pOrbitRadius, pOrbitSpeed, pMass, pRadius, pColor)
+            moon = Body331(pName,pOrbitRadius, pOrbitSpeed, pMass, pRadius, pColor);
+            randAngle = rand(1)*2*pi;
+            moon.pos = obj.pos + [moon.OrbitRadius * cos(randAngle); moon.OrbitRadius * sin(randAngle)];
+            moon.vel = obj.vel + [-1*moon.OrbitSpeed * cos(pi/2 - randAngle); moon.OrbitSpeed * sin(pi/2 - randAngle)];
+            moon.moonNumber = true;
+            obj.numberOfMoons = obj.numberOfMoons + 1;
+            moon.moonNumber = obj.numberOfMoons;
         end
         %returns a body for RK method.
         function newBody = rkCopy(obj,dx)

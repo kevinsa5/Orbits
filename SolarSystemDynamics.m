@@ -22,7 +22,7 @@ function varargout = SolarSystemDynamics(varargin)
 
     % Edit the above text to modify the response to help SolarSystemDynamics
 
-    % Last Modified by GUIDE v2.5 26-Feb-2014 16:37:44
+    % Last Modified by GUIDE v2.5 28-Mar-2014 14:18:43
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -59,6 +59,7 @@ function SolarSystemDynamics_OpeningFcn(hObject, ~, handles, varargin)
     % UIWAIT makes SolarSystemDynamics wait for user response (see UIRESUME)
     % uiwait(handles.MainFigure);
     reset(handles);
+    menuConfiguration_Callback(hObject,0,handles);
 end
 
 % --- Outputs from this function are returned to the command line.
@@ -83,27 +84,43 @@ end
 function drawBodies(handles)
     global bodies
     global spaceship;
-    labeling = get(handles.chkLabeling, 'Value');
+    planetLabeling = get(handles.chkLabeling, 'Value');
+    moonLabeling = get(handles.chkMoonLabeling, 'Value');
     lims = axis;
+    contents = cellstr(get(handles.centeredBody,'String'));
+    centeredBodyName = contents{get(handles.centeredBody,'Value')};
+    
+    translation = [0;0];
+    for i = bodies
+        if strcmp(centeredBodyName, i.Name), translation = i.pos; end
+    end
+    
     cla;
     plot(spaceship.xHist,spaceship.yHist);
     hold on;
+    
     for i=1:length(bodies)
         if bodies(i).joined, continue; end
         % using rectangle allows doing circle diameter in AU instead of px
         rectangle('Position',[transpose(bodies(i).pos - bodies(i).Radius) 2*bodies(i).Radius 2*bodies(i).Radius],'Curvature',1);
         plot(bodies(i).xHist, bodies(i).yHist, bodies(i).Color);
     end
-    axis(lims);
-    if labeling
+    deltaAxis = [translation(1) - mean(lims(1:2)), translation(2) - mean(lims(3:4))];
+    axis(lims + [deltaAxis(1) deltaAxis(1) deltaAxis(2) deltaAxis(2)]);
+    
+    if planetLabeling || moonLabeling
         yax = ylim;
         xax = xlim;
         dx = 0.02*(xax(2)-xax(1));
         dy = 0.02*(yax(2)-yax(1));
         for i=1:length(bodies)
             if bodies(i).joined, continue; end
-            %fprintf(1,'dx: %f; dy: %f \n', dx, dy);
-            text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
+            if bodies(i).moonNumber == 0 && planetLabeling
+                text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
+            elseif bodies(i).moonNumber ~= 0 && moonLabeling
+                text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy*(bodies(i).moonNumber+1), bodies(i).Name);
+            end
+            
         end
     end
     hold off;
@@ -363,6 +380,7 @@ function bodies = DefineBodies(configuration)
     mercury = Body331('Mercury', 0.387,10.1,0.055,1.6308e-5,'r');
     venus = Body331('Venus', 0.723, 7.378, 0.8150, 4.0454e-5, 'g');
     earth = Body331('Earth', 1, 6.282, 1, 4.2564e-5, 'b');
+    earthMoon = earth.makeMoon('Mona', 0.00257, 0.21544, 0.012300, 1.161e-5,'k');
     mars = Body331('Mars', 1.524, 5.076, 0.107, 2.263e-5,'r');
     jupiter = Body331('Jupiter', 5.203, 2.762, 317.8, 4.6239e-4, 'y');
     saturn = Body331('Saturn', 9.529, 2.02, 95.3, 3.8313e-4, 'y');
@@ -372,11 +390,11 @@ function bodies = DefineBodies(configuration)
     bodies = [];
     
     if strcmp(configuration, 'Full Solar System')
-        bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune];    
+        bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune earthMoon];    
     elseif strcmp(configuration, 'Sun, Planets only')
         bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune];    
     elseif strcmp(configuration, 'Sun, Earth, Moon')
-        bodies = [spaceship sun earth];
+        bodies = [spaceship sun earth earthMoon];
     end
     
     % make the system's net momentum zero:
@@ -448,7 +466,7 @@ function btnReset_Callback(~, ~, handles) %#ok<DEFNU>
     reset(handles);
 end
 
-function menuMethod_Callback(~, ~, ~) %#ok<DEFNU>
+function menuMethod_Callback(~, ~, handles) %#ok<DEFNU>
     % maybe set a good default timestep here?
 end
 
@@ -467,8 +485,19 @@ end
 
 function menuConfiguration_Callback(hObject, ~, handles) %#ok<DEFNU>
     global bodies;
-    contents = cellstr(get(hObject,'String'));
-    config = contents{get(hObject,'Value')};
+    contents = cellstr(get(handles.menuConfiguration,'String'));
+    config = contents{get(handles.menuConfiguration,'Value')};
     bodies = DefineBodies(config);
-    drawBodies(handles);
+    nameList{1} = 'None';
+    for i = 1:length(bodies)
+        nameList{i+1} = bodies(i).Name;
+    end
+    set(handles.centeredBody,'String',nameList);
+    set(handles.centeredBody,'Value',1);
+    drawBodies(handles);   
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function menuConfiguration_CreateFcn(hObject, ~, handles) %#ok<DEFNU>
 end
