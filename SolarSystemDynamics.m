@@ -22,7 +22,7 @@ function varargout = SolarSystemDynamics(varargin)
 
     % Edit the above text to modify the response to help SolarSystemDynamics
 
-    % Last Modified by GUIDE v2.5 28-Mar-2014 14:18:43
+    % Last Modified by GUIDE v2.5 29-Mar-2014 16:43:54
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -92,7 +92,7 @@ function drawBodies(handles)
     
     translation = [0;0];
     for i = bodies
-        if strcmp(centeredBodyName, i.Name), translation = i.pos; end
+        if strcmp(centeredBodyName, i.originalName), translation = i.pos; end
     end
     
     cla;
@@ -105,6 +105,7 @@ function drawBodies(handles)
         rectangle('Position',[transpose(bodies(i).pos - bodies(i).Radius) 2*bodies(i).Radius 2*bodies(i).Radius],'Curvature',1);
         plot(bodies(i).xHist, bodies(i).yHist, bodies(i).Color);
     end
+    % used for centering on the currently tracked body:
     deltaAxis = [translation(1) - mean(lims(1:2)), translation(2) - mean(lims(3:4))];
     axis(lims + [deltaAxis(1) deltaAxis(1) deltaAxis(2) deltaAxis(2)]);
     
@@ -115,10 +116,12 @@ function drawBodies(handles)
         dy = 0.02*(yax(2)-yax(1));
         for i=1:length(bodies)
             if bodies(i).joined, continue; end
-            if bodies(i).moonNumber == 0 && planetLabeling
+            if (strcmp(bodies(i).Name,'Sun') || strcmp(bodies(i).parent.Name,'Sun')) && planetLabeling
+                % bodies(i) is a planet or the sun
                 text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
-            elseif bodies(i).moonNumber ~= 0 && moonLabeling
-                text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy*(bodies(i).moonNumber+1), bodies(i).Name);
+            elseif bodies(i).numberOfChildren == 0 && ~ strcmp(bodies(i).parent.Name,'Sun') && moonLabeling
+                % bodies(i) is a moon
+                text(bodies(i).pos(1)+dx, bodies(i).pos(2)-dy*1.5*(bodies(i).childNumber), bodies(i).Name);
             end
             
         end
@@ -375,22 +378,41 @@ function bodies = DefineBodies(configuration)
     global sun;
     % pName,pOrbitRadius,pOrbitSpeed,pMass,pRadius,pColor
     % 10m = 6.685e-11 AU
-    spaceship = Body331('Ship',3.8,2,0.001,6.685e-11,'k');
-    sun = Body331('Sun', 0, 0, 333000, 0.004649, 'y');
-    mercury = Body331('Mercury', 0.387,10.1,0.055,1.6308e-5,'r');
-    venus = Body331('Venus', 0.723, 7.378, 0.8150, 4.0454e-5, 'g');
-    earth = Body331('Earth', 1, 6.282, 1, 4.2564e-5, 'b');
-    earthMoon = earth.makeMoon('Mona', 0.00257, 0.21544, 0.012300, 1.161e-5,'k');
-    mars = Body331('Mars', 1.524, 5.076, 0.107, 2.263e-5,'r');
-    jupiter = Body331('Jupiter', 5.203, 2.762, 317.8, 4.6239e-4, 'y');
-    saturn = Body331('Saturn', 9.529, 2.02, 95.3, 3.8313e-4, 'y');
-    uranus = Body331('Uranus', 19.19, 1.43, 14.6, 1.6889e-4, 'g');
-    neptune = Body331('Neptune', 30.06, 1.14, 17.23, 1.6412e-4, 'b');
-
+    sun = Body('Sun', 0, 0, 333000, 0.004649, 'y');
+        spaceship = sun.makeMoon('Ship',3.8,2,0.001,6.685e-11,'k');
+        mercury = sun.makeMoon('Mercury', 0.387,10.1,0.055,1.6308e-5,'r');
+        venus = sun.makeMoon('Venus', 0.723, 7.378, 0.8150, 4.0454e-5, 'g');
+        earth = sun.makeMoon('Earth', 1, 6.282, 1, 4.2564e-5, 'b');
+            earthMoon = earth.makeMoon('Mona', 0.00257, 0.21544, 0.012300, 1.161e-5,'k');
+        mars = sun.makeMoon('Mars', 1.524, 5.076, 0.107, 2.263e-5,'r');
+            phobos = mars.makeMoon('Phobos', 6.2675e-5, 0.4507, 1.78477e-8, 7.5e-8,'k');
+            deimos = mars.makeMoon('Deimos',1.5684E-004, 2.8490E-002, 2.4718E-008, 4.1000E-008,'k');
+        jupiter = sun.makeMoon('Jupiter', 5.203, 2.762, 317.8, 4.6239e-4, 'y');
+            io = jupiter.makeMoon('Io',2.8190E-003, 3.6540E+000, 1.5000E-002, 1.2175E-005,'k');
+            europa = jupiter.makeMoon('Europa',4.4847E-003, 2.8960E+000, 8.0000E-003, 1.0433E-005,'k');
+            ganymede = jupiter.makeMoon('Ganymede', 7.1552E-003, 2.2940E+000, 2.5000E-002, 1.7608E-005,'k');
+            callisto = jupiter.makeMoon('Callisto', 1.2585E-002, 1.7294E+000, 1.8000E-002, 1.6110E-005,'k');
+        saturn = sun.makeMoon('Saturn', 9.529, 2.02, 95.3, 3.8313e-4, 'y');
+            mimas = saturn.makeMoon('Mimas', 1.2366E-003, 3.0107E+000, 6.3000E-006, 1.3250E-006,'k');
+            enceladus = saturn.makeMoon('Enceladus', 1.5906E-003, 2.6622E+000, 1.8000E-005, 1.6850E-006,'k');
+            tethys = saturn.makeMoon('Tethys', 1.9694E-003, 2.3925E+000, 1.0300E-004, 3.5500E-006,'k');
+            dione = saturn.makeMoon('Dione', 2.5227E-003, 2.1141E+000, 3.2800E-004, 3.7530E-006,'k');
+            rhea = saturn.makeMoon('Rhea', 3.5235E-003, 1.7885E+000, 3.9000E-004, 5.1060E-006,'k');
+            titan = saturn.makeMoon('Titan', 8.1677E-003, 1.1748E+000, 2.2500E-002, 1.7219E-005,'k');
+            iapetus = saturn.makeMoon('Iapetus', 2.3803E-002, 6.8820E-001, 3.0234E-004, 4.9100E-006,'k');
+        uranus = sun.makeMoon('Uranus', 19.19, 1.43, 14.6, 1.6889e-4, 'g');
+            miranda = uranus.makeMoon('Miranda', 8.6492E-004, 0.223346, 1.1030E-005, 1.5760E-006,'k');
+            ariel = uranus.makeMoon('Ariel', 1.2769E-003, 1.8495E-001, 2.2600E-004, 3.8700E-006,'k');
+            umbriel = uranus.makeMoon('Umbriel', 1.7781E-003, 0.156614, 2.0000E-004, 3.9080E-006,'k');
+            tatania = uranus.makeMoon('Titania', 2.9139E-003, 1.2216E-001, 5.9080E-004, 5.2700E-006,'k');
+            oberon = uranus.makeMoon('Oberon', 3.9006E-003, 0.105748, 5.0460E-004, 5.0900E-006,'k');
+        neptune = sun.makeMoon('Neptune', 30.06, 1.14, 17.23, 1.6412e-4, 'b');
+            triton = neptune.makeMoon('Triton', 2.3714E-003, 0.147284, 3.5900E-003, 9.0470E-006,'k');
+        
     bodies = [];
     
     if strcmp(configuration, 'Full Solar System')
-        bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune earthMoon];    
+        bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune earthMoon phobos deimos io europa ganymede callisto mimas enceladus tethys dione rhea titan iapetus miranda ariel umbriel tatania oberon triton];    
     elseif strcmp(configuration, 'Sun, Planets only')
         bodies = [spaceship sun mercury venus earth mars jupiter saturn uranus neptune];    
     elseif strcmp(configuration, 'Sun, Earth, Moon')
@@ -483,7 +505,7 @@ function chkLabeling_Callback(~, ~, handles) %#ok<DEFNU>
     end
 end
 
-function menuConfiguration_Callback(hObject, ~, handles) %#ok<DEFNU>
+function menuConfiguration_Callback(~, ~, handles) %#ok<DEFNU>
     global bodies;
     contents = cellstr(get(handles.menuConfiguration,'String'));
     config = contents{get(handles.menuConfiguration,'Value')};
@@ -499,5 +521,14 @@ end
 
 
 % --- Executes during object creation, after setting all properties.
-function menuConfiguration_CreateFcn(hObject, ~, handles) %#ok<DEFNU>
+function menuConfiguration_CreateFcn(~, ~, ~) %#ok<DEFNU>
+end
+
+
+% --- Executes on button press in chkMoonLabeling.
+function chkMoonLabeling_Callback(~, ~, handles) %#ok<DEFNU>
+    if strcmp(get(handles.btnGo,'String'), 'Go') || ...
+       strcmp(get(handles.btnGo,'String'), 'Resume')
+        drawBodies(handles);
+    end
 end
