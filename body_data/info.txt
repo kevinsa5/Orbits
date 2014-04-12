@@ -1,0 +1,10 @@
+Name, Mass, Radius
+Sun, 1.988544e10, 6.955e5
+Mercury, 3.302e3, 2440
+Venus, 48.685e3, 6051.8
+Earth, 5.97219e4, 6371.01
+Mars, 6.4185e3, 3389.9
+Jupiter, 1898.13e4, 71492
+Saturn, 5.68319e6, 60268
+Uranus, 86.8103e4, 25559
+Neptune, 102.41e4, 24766

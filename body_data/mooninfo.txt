@@ -1,0 +1,239 @@
+Revised: Sep 28, 2012             Phobos / (Mars)                          401
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 13.1 x11.1 x9.3 Density (g cm^-3)   =  1.90 +- 0.08
+  Mass (10^20 kg )        =  1.08 (10^-4)   Geometric Albedo    =  0.06 
+                                 (+- 0.1)   V(1,0)              = +11.8
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 9.3772(10^3)    Orbital period      = 0.319 d
+  Eccentricity, e         = 0.0151          Rotational period   = Synchronous
+  Inclination, i  (deg)   = 1.082
+
+Revised: Sep 28, 2012             Deimos / (Mars)                          402
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 7.8 x 6.0 x 5.1 Density (g cm^-3)   =  1.76 +- 0.30
+  Mass (10^20 kg )        = 1.80 (10^-5)    Geometric Albedo    =  0.06 
+                               (+- 0.15)    V(1,0)              = +12.89
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 23.4632(10^3)   Orbital period      = 1.263 d
+  Eccentricity, e         =  0.00033        Rotational period   = Synchronous
+  Inclination, i  (deg)   =  1.791
+
+Revised: Dec 02, 2013             Io  / (Jupiter)                          501
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 1821.3 +- 0.2   Density (g cm^-3)   =  3.530 +-.006
+  Mass (10^20 kg )        =  893.3 +- 1.5   Geometric Albedo    =  0.6  
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 421.769 (10^3)  Orbital period      = 1.769138 d
+  Eccentricity, e         = 0.0041          Rotational period   = Synchronous
+
+Revised: Dec 02, 2013           Europa / (Jupiter)                         502
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 1565   +- 8     Density (g cm^-3)   =  2.99 +- 0.05
+  Mass (10^20 kg )        =  479.7 +- 1.5   Geometric Albedo    =  0.6  
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 671.079 (10^3)  Orbital period      = 3.551810 d
+  Eccentricity, e         = 0.0101          Rotational period   = Synchronous
+  Inclination, i  (deg)   = 0.464
+
+Revised: Dec 02, 2013           Ganymede / (Jupiter)                       503
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 2634   +- 10     Density (g cm^-3)  =  1.94 +- 0.02
+  Mass (10^20 kg )        = 1482   +- 1      Geometric Albedo   =  0.4
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 1070.0428 (10^3) Orbital period     = 7.154553 d
+  Eccentricity, e         = 0.0006           Rotational period  = Synchronous
+  Inclination, i  (deg)   = 0.186
+
+Revised: Dec 02, 2013           Callisto / (Jupiter)                       504
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 2403   +- 5     Density (g cm^-3)   = 1.851 +- .004
+  Mass (10^20 kg )        = 1076   +- 1     Geometric Albedo    =  0.20 
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 1883  (10^3)    Orbital period      = 16.689018 d
+  Eccentricity, e         = 0.007           Rotational period   = Synchronous
+  Inclination, i  (deg)   = 0.281
+
+Revised: Dec 30, 2013             Mimas / (Saturn)                         601
+                        http://ssd.jpl.nasa.gov/?sat_phys_par
+                         http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean Radius (km)        = 198.8   +- 1.5   Density (g/cm^3)  = 1.152 +- 0.027
+  Mass (10^22 g)          =   3.75           Geometric Albedo  = 0.6 
+  GM (km^3/s^2)           =   2.503          V(1,0)            = +3.3
+
+ SATELLITE ORBITAL DATA (mean elements referred to local Laplace plane):
+  Semi-major axis, a (km) = 185.54(10^3)    Orbital period     = 0.9424218 d
+  Eccentricity, e         = 0.0196          Rotational period  = Synchronous
+  Inclination, i  (deg)   = 1.572
+
+Revised: Dec 30, 2013            Enceladus / (Saturn)                      602
+                           http://ssd.jpl.nasa.gov/?sat_phys_par
+                             http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean Radius (km)        = 252.3   +- 0.6   Density (g/cm^3) =  1.606 +- 0.012
+  Mass (10^22 g)          =  10.805          Geometric Albedo =  1.04
+  GM (km^3/s^2)           =   7.206 +- 0.011 V(1,0)           =  +2.2
+
+ SATELLITE ORBITAL DATA (mean elements referred to local Laplace plane):
+  Semi-major axis, a (km) = 238.04(10^3)    Orbital period    = 1.370218 d
+  Eccentricity, e         = 0.0047          Rotational period = Synchronous
+  Inclination, i  (deg)   = 0.009
+
+Revised: Dec 30, 2013            Tethys  / (Saturn)                        603
+                          http://ssd.jpl.nasa.gov/?sat_phys_par
+                            http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean Radius (km)       = 536.3  +- 1.5     Density (g/cm^3)  =  0.956+- 0.008
+  Mass (10^22 g)         =  61.76 +- 0.11    Geometric Albedo  =  0.80
+  GM (km^3/s^2)          =  41.21 +- 0.007   V(1,0)            = +0.7
+
+ SATELLITE ORBITAL DATA (mean values with respect to local Laplace plane):
+  Semi-major axis, a (km)=  294.670(10^3)    Orbital period    =  1.888 d
+  Eccentricity, e        =     0.0001        Rotational period = Synchronous
+  Inclination, i  (deg)  =     1.091
+
+Revised: Dec 30, 2013            Dione  / (Saturn)                         604
+                        http://ssd.jpl.nasa.gov/?sat_phys_par
+                          http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean Radius (km)        = 562.5   +- 5     Density (g/cm^3) =  1.469 +- 0.012
+  Mass (10^22 g)          = 109.572          Geometric Albedo =  0.6
+  GM (km^3/s^2)           =  73.113 +- 0.02 V(1,0)            = +0.8
+
+ SATELLITE ORBITAL DATA (mean values referred to local Laplace plane):
+  Semi-major axis, a (km) = 377.42(10^3)    Orbital period    = 2.736915 d
+  Eccentricity, e         = 0.0022          Rotational period = Synchronous
+  Inclination, i  (deg)   = 0.028
+
+Revised: Dec 30, 2013            Rhea  / (Saturn)                          605
+                        http://ssd.jpl.nasa.gov/?sat_phys_par
+                         http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean Radius (km)        = 764.5  +- 2     Density (g/cm^3)  =  1.233 +- 0.010
+  Mass (10^22 g)          = 230.9           Geometric Albedo  =  0.6
+  GM (km^3/s^2)           = 153.94 +- 0.16  V(1,0)            = +0.1
+
+ SATELLITE ORBITAL DATA (mean values referred to local Laplace plane):
+  Semi-major axis, a (km) = 527.07(10^3)    Orbital period    = 4.518 d
+  Eccentricity, e         = 0.001           Rotational period = Synchronous
+  Inclination, i  (deg)   = 0.331
+
+Revised: Dec 30, 2013              Titan / (Saturn)                        606
+                         http://ssd.jpl.nasa.gov/?sat_phys_par
+                           http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Mean Radius (km)       = 2575.5   +-  2.0  Density (g/cm^3) =  1.880 +- 0.004
+  Mass (10^22 g)         = 13455.3           Geometric Albedo =  0.2 
+  GM (km^3/s^2)          = 8978.13  +-  0.06  V(1,0)          = -1.2 
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km)= 1221.87 (10^3)  Orbital period     = 15.945421 d
+  Eccentricity, e        = 0.0288          Rotational period  = 
+  Inclination, i  (deg)  = 0.28
+
+Revised: Dec 30, 2013             Iapetus / (Saturn)                       608
+                          http://ssd.jpl.nasa.gov/?sat_phys_par
+                            http://ssd.jpl.nasa.gov/?sat_elem
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)            = 734.5    +- 4.0    Density (g/cm^3)=  1.088 +- 0.018 
+  Mass (10^22 g)         = 180.59             Geometric Albedo=  0.6
+  GM (km^3/s^2)          = 120.51   +- 0.03   V(1,0)          =   +1.5 (.7-2.5)
+
+ SATELLITE ORBITAL DATA (mean values with respect to local Laplace plane):
+  Semi-major axis, a (km)= 3560.84 (10^3)     Orbital period    = 79.33 d
+  Eccentricity, e        =     0.0283         Rotational period = Synchronous
+  Inclination, i  (deg)  =     7.489
+
+Revised: Jan 08, 2014             Miranda / (Uranus)                       705
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)           = 240x234.2x232.9   Density (g cm^-3)   =  1.20 +- 0.14
+  Mass (10^20 kg )      =  0.659 +- 0.075   Geometric Albedo    =  0.27 
+                                            V(1,0)              = +3.6 
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 129.8 (10^3)    Orbital period      =  1.413 d
+  Eccentricity, e         =   0.0027        Rotational period   = Synchronous
+  Inclination, i  (deg)   =   4.22
+
+Revised: Jan 08, 2014             Ariel  / (Uranus)                        701
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)           = 581.1x577.9x577.7 Density (g cm^-3)   = 1.67 +- 0.15
+  Mass (10^20 kg )      =   13.53 +- 1.20   Geometric Albedo    =  0.34 
+                                            V(1,0)              = +1.45
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 191.2 (10^3)    Orbital period      = 2.520 d
+  Eccentricity, e         =   0.0034        Rotational period   = Synchronous
+  Inclination, i  (deg)   =   0.31
+
+Revised: Jan 08, 2014             Umbriel / (Uranus)                       702
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)           = 584.7  +- 2.8     Density (g cm^-3)   =  1.40 +- 0.16
+  Mass (10^20 kg )      =  11.72 +- 1.35    Geometric Albedo    =  0.18 
+                                            V(1,0)              = +2.10
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 266.0 (10^3)    Orbital period      = 4.144 d
+  Eccentricity, e         =   0.0050        Rotational period   = Synchronous
+  Inclination, i  (deg)   =   0.36
+
+Revised: Jan 08, 2014             Titania / (Uranus)                       703
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)           = 788.9  +- 1.8     Density (g cm^-3)   =  1.71 +- 0.05
+  Mass (10^20 kg )      =  35.27 +- 0.90    Geometric Albedo    =  0.27 
+                                            V(1,0)              = +1.02
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 435.8 (10^3)    Orbital period      = 8.706 d
+  Eccentricity, e         =   0.0022        Rotational period   = Synchronous
+  Inclination, i  (deg)   =   0.10
+
+Revised: Jan 08, 2014             Oberon  / (Uranus)                       704
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)           = 761.4  +- 2.6     Density (g cm^-3)   =  1.63 +- 0.05
+  Mass (10^20 kg )      =  30.14 +- 0.75    Geometric Albedo    =  0.24 
+                                            V(1,0)              = +1.23
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 582.6 (10^3)    Orbital period      = 13.463 d
+  Eccentricity, e         =   0.0008        Rotational period   = Synchronous
+  Inclination, i  (deg)   =   0.10
+
+Revised: Mar 27, 2009             Triton / (Neptune)                       801
+
+ SATELLITE PHYSICAL PROPERTIES:
+  Radius (km)             = 1352.6 +- 2.4   Density (g cm^-3)   = 2.054 +-0.032
+  Mass (10^20 kg )        =  214.7 +- 0.7   Geometric Albedo    =  0.7  
+                                            V(1,0)              = -1.24
+
+ SATELLITE ORBITAL DATA:
+  Semi-major axis, a (km) = 354.76(10^3)    Orbital period      = 5.876854 d (R)
+  Eccentricity, e         =                 Rotational period   = Synchronous
+  Inclination, i  (deg)   = 156.834
+
+ Fit to all reported measurements through 2008, as described in AJ (2009).
+
