@@ -38,9 +38,11 @@ function SolarSystemDynamics_OpeningFcn(hObject, ~, handles, varargin)
     cla;
     global bodies;
     bodies = [];
+    
     menuConfiguration_Callback(0,0,handles);
     menuLaunchDate_Callback(handles.menuLaunchDate, 0, handles)
-
+    h = zoom;
+    set(h,'ActionPostCallback',@drawLabels);
     
 end
 
@@ -58,8 +60,9 @@ end
 function drawBodies(handles)
     global bodies
     global spaceship;
-    planetLabeling = get(handles.chkLabeling, 'Value');
-    moonLabeling = get(handles.chkMoonLabeling, 'Value');
+    %global planetLabeling; planetLabeling = get(handles.chkLabeling, 'Value');
+    %global moonLabeling; moonLabeling = get(handles.chkMoonLabeling, 'Value');
+
     lims = axis;
     contents = cellstr(get(handles.centeredBody,'String'));
     centeredBodyName = contents{get(handles.centeredBody,'Value')};
@@ -85,6 +88,21 @@ function drawBodies(handles)
     deltaAxis = [translation(1) - mean(lims(1:2)), translation(2) - mean(lims(3:4))];
     axis(lims + [deltaAxis(1) deltaAxis(1) deltaAxis(2) deltaAxis(2)]);
     
+    hold off;
+end
+
+function drawLabels(~,~)
+    handles = guidata(gcf);
+    planetLabeling = get(handles.chkLabeling, 'Value');
+    moonLabeling = get(handles.chkMoonLabeling, 'Value');
+    
+    if strcmp(get(handles.btnGo, 'String'), 'Go') || ...
+       strcmp(get(handles.btnGo, 'String'), 'Resume')
+        drawBodies(handles);
+    end
+    global bodies;
+    global elapsedTime;
+    
     if planetLabeling || moonLabeling
         yax = ylim;
         xax = xlim;
@@ -102,11 +120,18 @@ function drawBodies(handles)
             
         end
     end
-    hold off;
+    days = 365.242*elapsedTime;
+    text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
 end
 
 function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
     global bodies;
+    global elapsedTime;
+    capturingMovie = false;
+    if capturingMovie
+        vidWriter = VideoWriter('movies/movie.avi');
+        open(vidWriter);
+    end
 
     if strcmp(get(hObject, 'String'), 'Pause')
         disp('pause was hit');
@@ -128,6 +153,10 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
 
     deltaT = str2double(get(handles.txtTimeStep, 'String'));
     frameSkip = str2double(get(handles.txtFrameSkip, 'String'));
+    
+    if start == 0
+            elapsedTime = 0;
+    end
 
 %    for i = bodies
 %        fprintf(1,'Name: %s; x: %f; y: %f;\n', i.Name, i.pos(1), i.pos(2));
@@ -144,6 +173,8 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             set(hObject, 'UserData', num2str(t));
             %drawBodies(true);
             drawBodies(handles);
+            drawLabels(0,0);
+
             %axis(defaultAxes);
             return;
         end
@@ -252,8 +283,8 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             end
         elseif strcmp(method, 'Verlet')
             % Taken from http://xbeams.chem.yale.edu/~batista/vaa/node60.html
-            dX = zeros(2,length(bodies));
-            dV = zeros(2,length(bodies));
+            dX = zeros(3,length(bodies));
+            dV = zeros(3,length(bodies));
             for i = 1:length(bodies)
                 if bodies(i).joined, continue; end
                 accel = [0;0;0];
@@ -308,23 +339,32 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
         %axis(defaultAxes);
         if mod(t,frameSkip) == 0 
             drawBodies(handles);
+            drawLabels(0,0);
             drawnow;
+            if capturingMovie && ishandle(handles.MainFigure)
+                writeVideo(vidWriter,getframe(gca));
+            end
         end
-
+        elapsedTime = elapsedTime + deltaT;
     end
     if ishandle(hObject)
         set(hObject, 'UserData', 'Finished');
         set(hObject, 'String', 'Go');
         set(hObject, 'UserData', '1');
     end
+    
+    if capturingMovie
+        close(vidWriter);
+    end
 end
 
 function accel = forceOn(body1, body2)
     % Big G in units of Au^3 / (earth mass * year^2)
-    G = 0.00011835;
+    % extra sig figs, just for funsies
+    G = 1.18556068632395e-04;
     r = norm(body1.pos - body2.pos);
-    % next line has (x1-x2)/mag(x1-x2) to represent rhat
-    accel = -G*body2.Mass/ r^3 * (body1.pos - body2.pos);
+    % next line has (x1-x2)/mag(x1-x2) to represent r-hat
+    accel = (-G*body2.Mass * (body1.pos - body2.pos)) / r^3;
 end
     
 function txtTimeStep_Callback(hObject, ~, ~) %#ok<DEFNU>
@@ -358,8 +398,8 @@ function reset(handles)
 
     defaultAxes = [-30 30 -30 30];
     axis(defaultAxes);
-    set(handles.txtTimeStep, 'String', 0.00273);
-    set(handles.txtFrameSkip, 'String', 10);
+    set(handles.txtTimeStep, 'String', 0.000273);
+    set(handles.txtFrameSkip, 'String', 1);
     set(handles.btnGo, 'UserData', '1');
     set(handles.FrameCount,'String',0);
     
@@ -369,9 +409,6 @@ function reset(handles)
     set(handles.menuMethod, 'Enable', 'on');
     set(handles.menuLaunchDate, 'Enable', 'on');
     set(handles.btnGo, 'String', 'Go');
-    
-    %contents = cellstr(get(handles.menuConfiguration,'String'));
-    %config = contents{get(handles.menuConfiguration,'Value')};
 end
 
 function btnReset_Callback(~, ~, handles) %#ok<DEFNU>
@@ -392,6 +429,7 @@ function chkLabeling_Callback(~, ~, handles) %#ok<DEFNU>
     if strcmp(get(handles.btnGo,'String'), 'Go') || ...
        strcmp(get(handles.btnGo,'String'), 'Resume')
         drawBodies(handles);
+        drawLabels(0,0);
     end
 end
 
@@ -410,6 +448,7 @@ function menuConfiguration_Callback(~, ~, handles)
     if strcmp(configuration, 'Full Solar System')
         bodyData = [primaryData; secondaryData];
     elseif strcmp(configuration, 'Sun, Planets only')
+        disp('planets only!');
         bodyData = primaryData;
     elseif strcmp(configuration, 'Sun, Earth, Moon')
         bodyData = [primaryData; secondaryData];
@@ -438,20 +477,18 @@ function menuConfiguration_Callback(~, ~, handles)
     set(handles.menuLaunchDate,'Value',1);
 end
 
-
 % --- Executes during object creation, after setting all properties.
 function menuConfiguration_CreateFcn(~, ~, ~) %#ok<DEFNU>
 end
-
 
 % --- Executes on button press in chkMoonLabeling.
 function chkMoonLabeling_Callback(~, ~, handles) %#ok<DEFNU>
     if strcmp(get(handles.btnGo,'String'), 'Go') || ...
        strcmp(get(handles.btnGo,'String'), 'Resume')
         drawBodies(handles);
+        drawLabels(0,0);
     end
 end
-
 
 % --- Executes on selection change in menuLaunchDate.
 function menuLaunchDate_Callback(hObject, ~, handles) %#ok<DEFNU>
@@ -484,14 +521,13 @@ function menuLaunchDate_Callback(hObject, ~, handles) %#ok<DEFNU>
         %pos contains all the position data for the launch date
     end
     %cassini is -82 in horizons
-    % -1.727517569091358E-01,  9.669822755631888E-01, -5.710328315819876E-04,
-    % -1.714880581115672E-02, -2.022517204531316E-03,  2.918539695245248E-05
-    cassini_pos = [-3.632738231908875E-02;  9.224957383614817E-01;  1.825469610465980E-02];
-    cassini_vel = [-1.653096673886727E-02; -2.596033878048688E-03;  8.679572660558595E-05];
-    %cassini_pos = [-3.633e-2; 9.225e-1; 1.8255e-2];
-    %cassini_vel = [-1.653e-2; -2.596e-3; 8.6796e-5];
+    %cassini_pos = [-3.632738231908875E-02;  9.224957383614817E-01;  1.825469610465980E-02];
+    %cassini_vel = [-1.653096673886727E-02; -2.596033878048688E-03;  8.679572660558595E-05];
+    cassini_pos = [-4.093868409910618E-02;  9.227191469266025E-01;  1.883044443995243E-02];
+    cassini_vel = [-1.659025634165134E-02; -3.745936603666906E-03;  5.813019362138117E-05];
     cassini_vel = cassini_vel * 365.242;  
-    spaceship = Body('Ship',cassini_pos,cassini_vel,0.000001,0.001,'b');
+    % radius of ~10m, if it's that close then it's screwed anyway
+    spaceship = Body('Ship',cassini_pos,cassini_vel,0.000001,7e-11,'b');
     bodies = [bodies spaceship];
     
     comVel = [0;0;0];
@@ -506,6 +542,7 @@ function menuLaunchDate_Callback(hObject, ~, handles) %#ok<DEFNU>
        end
     end
     drawBodies(handles);
+    drawLabels(0,0);
 
 end
 
