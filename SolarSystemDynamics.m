@@ -101,7 +101,6 @@ function drawLabels(~,~)
         drawBodies(handles);
     end
     global bodies;
-    global elapsedTime;
     
     if planetLabeling || moonLabeling
         yax = ylim;
@@ -120,13 +119,15 @@ function drawLabels(~,~)
             
         end
     end
-    days = 365.242*elapsedTime;
+    t = str2double(get(handles.FrameCount, 'String'));
+    days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
     text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
 end
 
 function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
     global bodies;
-    global elapsedTime;
+    global spaceship;
+    global venus;
     capturingMovie = false;
     if capturingMovie
         vidWriter = VideoWriter('movies/movie.avi');
@@ -153,17 +154,9 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
 
     deltaT = str2double(get(handles.txtTimeStep, 'String'));
     frameSkip = str2double(get(handles.txtFrameSkip, 'String'));
-    
-    if start == 0
-            elapsedTime = 0;
-    end
-
-%    for i = bodies
-%        fprintf(1,'Name: %s; x: %f; y: %f;\n', i.Name, i.pos(1), i.pos(2));
-%    end
 
     % 100000 is the arbitrary number of iterations I picked
-    for t=start:100000
+    for t=start:10000000
         % window was closed?
         if ~ ishandle(handles.MainFigure)
             break;
@@ -335,6 +328,10 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
                end
            end
         end
+        
+        if norm(spaceship.pos - venus.pos) < 0.01
+            disp(norm(spaceship.pos - venus.pos));
+        end
 
         %axis(defaultAxes);
         if mod(t,frameSkip) == 0 
@@ -345,7 +342,6 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
                 writeVideo(vidWriter,getframe(gca));
             end
         end
-        elapsedTime = elapsedTime + deltaT;
     end
     if ishandle(hObject)
         set(hObject, 'UserData', 'Finished');
@@ -529,6 +525,12 @@ function menuLaunchDate_Callback(hObject, ~, handles) %#ok<DEFNU>
     % radius of ~10m, if it's that close then it's screwed anyway
     spaceship = Body('Ship',cassini_pos,cassini_vel,0.000001,7e-11,'b');
     bodies = [bodies spaceship];
+    global venus;
+    for b = bodies
+        if strcmp(b.Name,'Venus')
+            venus = b;
+        end
+    end
     
     comVel = [0;0;0];
     for b = bodies
