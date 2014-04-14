@@ -101,6 +101,8 @@ function drawLabels(~,~)
         drawBodies(handles);
     end
     global bodies;
+    global planetList;
+    global moonList;
     
     if planetLabeling || moonLabeling
         yax = ylim;
@@ -109,19 +111,17 @@ function drawLabels(~,~)
         dy = 0.02*(yax(2)-yax(1));
         for i=1:length(bodies)
             if bodies(i).joined, continue; end
-%            if strcmp(bodies(i).Name,'Sun') && planetLabeling
-                % bodies(i) is a planet or the sun
+            if planetLabeling && sum(sum(strcmp(bodies(i).Name,planetList)))
                 text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
-%            elseif bodies(i).numberOfChildren == 0 && ~ strcmp(bodies(i).parent.Name,'Sun') && moonLabeling
-                % bodies(i) is a moon
-%                text(bodies(i).pos(1)+dx, bodies(i).pos(2)-dy*1.5*(bodies(i).childNumber), bodies(i).Name);
-%            end
-            
+            end
+            if moonLabeling && sum(sum(strcmp(bodies(i).Name,moonList)))
+                text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
+            end         
         end
+        text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
     end
     t = str2double(get(handles.FrameCount, 'String'));
     days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
-    text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
 end
 
 function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
@@ -431,13 +431,16 @@ end
 
 function menuConfiguration_Callback(~, ~, handles) 
     global bodyData;
+    global planetList;
+    global moonList;
     contents = cellstr(get(handles.menuConfiguration,'String'));
     configuration = contents{get(handles.menuConfiguration,'Value')};
     
     %bodyPositions is a list of tables
     primaryData = readtable('body_data/info.txt');
     secondaryData = readtable('body_data/mooninfo_1.txt');
-    
+    planetList = primaryData.Name;
+    moonList = primaryData.Name;
     % bodyInfo.txt expects data of the form of
     % BodyName, BodyMass, BodyRadius
     
@@ -517,8 +520,6 @@ function menuLaunchDate_Callback(hObject, ~, handles) %#ok<DEFNU>
         %pos contains all the position data for the launch date
     end
     %cassini is -82 in horizons
-    %cassini_pos = [-3.632738231908875E-02;  9.224957383614817E-01;  1.825469610465980E-02];
-    %cassini_vel = [-1.653096673886727E-02; -2.596033878048688E-03;  8.679572660558595E-05];
     cassini_pos = [-4.093868409910618E-02;  9.227191469266025E-01;  1.883044443995243E-02];
     cassini_vel = [-1.659025634165134E-02; -3.745936603666906E-03;  5.813019362138117E-05];
     cassini_vel = cassini_vel * 365.242;  
