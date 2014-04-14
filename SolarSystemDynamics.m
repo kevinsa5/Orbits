@@ -118,10 +118,10 @@ function drawLabels(~,~)
                 text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
             end         
         end
+        t = str2double(get(handles.FrameCount, 'String'));
+        days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
         text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
     end
-    t = str2double(get(handles.FrameCount, 'String'));
-    days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
 end
 
 function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
