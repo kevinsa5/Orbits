@@ -95,7 +95,7 @@ function drawLabels(~,~)
     handles = guidata(gcf);
     planetLabeling = get(handles.chkLabeling, 'Value');
     moonLabeling = get(handles.chkMoonLabeling, 'Value');
-    
+   
     if strcmp(get(handles.btnGo, 'String'), 'Go') || ...
        strcmp(get(handles.btnGo, 'String'), 'Resume')
         drawBodies(handles);
@@ -103,25 +103,26 @@ function drawLabels(~,~)
     global bodies;
     global planetList;
     global moonList;
-    
+    global spaceship;
+    yax = ylim;
+    xax = xlim;
+    dx = 0.02*(xax(2)-xax(1));
+    dy = 0.02*(yax(2)-yax(1));
     if planetLabeling || moonLabeling
-        yax = ylim;
-        xax = xlim;
-        dx = 0.02*(xax(2)-xax(1));
-        dy = 0.02*(yax(2)-yax(1));
         for i=1:length(bodies)
             if bodies(i).joined, continue; end
-            if planetLabeling && sum(sum(strcmp(bodies(i).Name,planetList)))
+            if planetLabeling && sum(sum(strcmp(bodies(i).Name,planetList))) == 1
                 text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
             end
-            if moonLabeling && sum(sum(strcmp(bodies(i).Name,moonList)))
+            if moonLabeling && sum(sum(strcmp(bodies(i).Name,moonList))) == 1
                 text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
             end         
         end
-        t = str2double(get(handles.FrameCount, 'String'));
-        days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
-        text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
+        text(spaceship.pos(1)+dx, spaceship.pos(2)+dy, spaceship.Name);
     end
+    t = str2double(get(handles.FrameCount, 'String'));
+    days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
+    text(xax(1)+dx, yax(2)-dy, strcat(num2str(days),' days'));
 end
 
 function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
@@ -440,7 +441,7 @@ function menuConfiguration_Callback(~, ~, handles)
     primaryData = readtable('body_data/info.txt');
     secondaryData = readtable('body_data/mooninfo_1.txt');
     planetList = primaryData.Name;
-    moonList = primaryData.Name;
+    moonList = secondaryData.Name;
     % bodyInfo.txt expects data of the form of
     % BodyName, BodyMass, BodyRadius
     
