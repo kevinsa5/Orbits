@@ -118,7 +118,7 @@ function drawLabels(~,~)
                 text(bodies(i).pos(1)+dx, bodies(i).pos(2)+dy, bodies(i).Name);
             end         
         end
-        text(spaceship.pos(1)+dx, spaceship.pos(2)+dy, spaceship.Name);
+        %text(spaceship.pos(1)+dx, spaceship.pos(2)+dy, spaceship.Name);
     end
     t = str2double(get(handles.FrameCount, 'String'));
     days = 365.242*t*str2double(get(handles.txtTimeStep, 'String'));
@@ -157,7 +157,7 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
     frameSkip = str2double(get(handles.txtFrameSkip, 'String'));
 
     % 100000 is the arbitrary number of iterations I picked
-    for t=start:10000000
+    for t=start:1000
         % window was closed?
         if ~ ishandle(handles.MainFigure)
             break;
@@ -340,7 +340,11 @@ function btnGo_Callback(hObject, ~, handles) %#ok<DEFNU>
             drawLabels(0,0);
             drawnow;
             if capturingMovie && ishandle(handles.MainFigure)
-                writeVideo(vidWriter,getframe(gca));
+                try
+                    writeVideo(vidWriter,getframe(gca));
+                catch err
+                    disp('sup');
+                end
             end
         end
     end
@@ -448,7 +452,6 @@ function menuConfiguration_Callback(~, ~, handles)
     if strcmp(configuration, 'Full Solar System')
         bodyData = [primaryData; secondaryData];
     elseif strcmp(configuration, 'Sun, Planets only')
-        disp('planets only!');
         bodyData = primaryData;
     elseif strcmp(configuration, 'Sun, Earth, Moon')
         bodyData = [primaryData; secondaryData];
@@ -526,7 +529,7 @@ function menuLaunchDate_Callback(hObject, ~, handles) %#ok<DEFNU>
     cassini_vel = cassini_vel * 365.242;  
     % radius of ~10m, if it's that close then it's screwed anyway
     spaceship = Body('Ship',cassini_pos,cassini_vel,0.000001,7e-11,'b');
-    bodies = [bodies spaceship];
+    %bodies = [bodies spaceship];
     global venus;
     for b = bodies
         if strcmp(b.Name,'Venus')
