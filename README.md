@@ -20,19 +20,17 @@ Cool Features
 
 + Collisions are checked and absorptions are done based on mass with conservation of linear momentum
 
-Plans
++ Starting positions for planets+moons available for a wide selection of dates
+
+Improvements To-Do
 -----
++ Rewrite the tight loops in C or Fortran, since RK4 is just abominably slow.
+
 + Write a shooting method to solve the BVP (I'm here, I want to be there) and find the initial velocity for an unpowered (and powered?) object.
 
 + Include a graph of total kinetic energy and angular momentum over time to show which methods conserve which quantities
 
-+ Figure out a better way to do initial conditions for the spacecraft
-
-+ Shore up the hard-coded values for the planets
-
 + Improve the Euler method so it uses force-symmetry rather than recalculating
-
-+ Include moons
 
 Screenshots
 -----------
